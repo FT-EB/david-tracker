@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DAVID">
+<title>DAVID — Body Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07111c;
+  --card: #0d1e2d;
+  --card2: #112436;
+  --border: rgba(61,214,224,.12);
+  --hi: rgba(61,214,224,.35);
+  --accent: #3dd6e0;
+  --mint: #63d2b8;
+  --gold: #f0c040;
+  --gold-dim: rgba(240,192,64,.12);
+  --fire: #ff6b35;
+  --text: #e4f4f6;
+  --dim: #7ab3bc;
+  --muted: #2a4a58;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --safe: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;overflow-x:hidden}
+
+/* NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,30,45,.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe);z-index:100}
+.nav-btn{flex:1;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;transition:.2s}
+.nav-icon{font-size:20px;line-height:1;transition:.2s}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'Noto Sans JP',sans-serif}
+.nav-btn.active .nav-label{color:var(--accent)}
+.nav-btn.active .nav-icon{transform:scale(1.15)}
+
+/* PANELS */
+.panel{display:none;padding:0 14px calc(84px + var(--safe)) 14px}
+.panel.active{display:block}
+
+/* HEADER */
+.header{padding:calc(env(safe-area-inset-top,0px) + 16px) 14px 0;background:linear-gradient(180deg,rgba(61,214,224,.07) 0%,transparent 100%);border-bottom:1px solid var(--border);margin-bottom:16px}
+.header-inner{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.app-title{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:4px;line-height:1}
+.app-sub{font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase}
+.header-menu{font-size:11px;color:var(--dim);padding-bottom:12px}
+.header-menu span{color:var(--text)}
+
+/* CARDS */
+.card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:14px;padding:16px}
+.card+.card,.card+.paste-zone,.paste-zone+.card{margin-top:12px}
+
+/* HERO CARD */
+.hero-card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid rgba(240,192,64,.2);border-radius:16px;padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(240,192,64,.06),transparent 70%);pointer-events:none}
+
+.hero-body{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.david-wrap{flex-shrink:0}
+.hero-stats{flex:1}
+.fat-now{margin-bottom:10px}
+.fat-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;margin-bottom:2px}
+.fat-value{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--accent);line-height:1;letter-spacing:1px}
+.fat-value span{font-size:18px;color:var(--dim)}
+.fat-remaining{font-size:12px;color:var(--dim);margin-top:2px}
+.fat-remaining b{color:var(--gold);font-size:16px}
+.wt-now{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--mint);letter-spacing:1px}
+.wt-now span{font-size:13px;color:var(--dim)}
+
+/* PROGRESS BARS */
+.prog-section{margin-top:4px}
+.prog-row{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px}
+.prog-row b{color:var(--gold)}
+.prog-track{background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden}
+.prog-track.fat-track{height:11px;margin-bottom:10px}
+.prog-track.day-track{height:6px}
+.prog-fill{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.fat-fill{background:linear-gradient(90deg,var(--mint),var(--accent),var(--gold));box-shadow:0 0 14px rgba(61,214,224,.4)}
+.day-fill{background:linear-gradient(90deg,var(--accent),var(--mint))}
+
+/* STREAK */
+.streak-card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid rgba(255,107,53,.18);border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.streak-fire{font-size:40px;flex-shrink:0;line-height:1}
+.streak-info{flex:1}
+.streak-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--fire);letter-spacing:1px;line-height:1}
+.streak-num span{font-size:14px;color:var(--dim);font-family:'Noto Sans JP',sans-serif;font-weight:300;letter-spacing:0}
+.streak-msg{font-size:11px;color:var(--muted);margin-top:3px}
+.streak-ring{flex-shrink:0}
+
+/* BADGES */
+.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.badge-item{border-radius:10px;padding:10px 6px;text-align:center;transition:.3s;border:1px solid transparent}
+.badge-item.earned{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
+.badge-item.locked{background:rgba(255,255,255,.02);opacity:.3}
+.badge-icon{font-size:22px;margin-bottom:4px;display:block}
+.badge-label{font-size:9px;line-height:1.4;font-weight:500}
+.badge-done{font-size:8px;color:var(--ok);margin-top:3px}
+
+/* SECTION LABEL */
+.sec-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;margin-top:16px}
+.sec-label:first-child{margin-top:0}
+
+/* PASTE ZONE */
+.paste-zone{background:linear-gradient(135deg,rgba(61,214,224,.06),rgba(99,210,184,.03));border:1.5px dashed rgba(61,214,224,.3);border-radius:14px;padding:16px;margin-bottom:12px;transition:.2s}
+.paste-zone:focus-within{border-color:var(--accent)}
+.paste-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.paste-head-icon{font-size:16px}
+.paste-head-title{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);letter-spacing:1px}
+.paste-desc{font-size:11px;color:var(--dim);margin-bottom:10px;line-height:1.7}
+textarea.paste-input{width:100%;min-height:76px;background:rgba(61,214,224,.04);border:1px solid rgba(61,214,224,.2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:13px;font-family:'Noto Sans JP',sans-serif;resize:vertical;line-height:1.7;outline:none;transition:.2s}
+textarea.paste-input:focus{border-color:var(--accent);background:rgba(61,214,224,.07)}
+textarea.paste-input::placeholder{color:var(--muted)}
+.paste-status{margin-top:8px;font-size:12px;min-height:18px;transition:.3s}
+.paste-ok{color:var(--ok)}
+.paste-err{color:#f87171}
+
+/* TODAY DATA */
+.today-data{margin-bottom:10px}
+.data-nums{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.data-num{text-align:center}
+.data-num-label{font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:2px}
+.data-num-val{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;letter-spacing:1px}
+.data-num-unit{font-size:12px;color:var(--dim)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.chip{display:inline-flex;align-items:center;background:rgba(61,214,224,.07);border:1px solid rgba(99,210,219,.12);border-radius:99px;padding:3px 10px;font-size:11px;color:var(--dim)}
+.meal-section{border-top:1px solid var(--border);padding-top:10px}
+.meal-row{font-size:12px;color:var(--dim);margin-bottom:4px;line-height:1.5}
+.meal-row b{color:var(--accent)}
+.meal-total{font-size:12px;color:var(--warn);font-weight:700;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.05)}
+
+/* BUTTONS */
+.btn-gold{width:100%;padding:14px;border-radius:11px;border:none;background:linear-gradient(135deg,#b8840a,#f0c040);color:#07111c;font-weight:700;font-size:14px;cursor:pointer;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;box-shadow:0 5px 20px rgba(240,192,64,.25);transition:.2s;display:block;margin-top:12px}
+.btn-gold:active{transform:scale(.98);opacity:.9}
+.btn-send{width:100%;padding:13px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--mint),var(--accent));color:#07111c;font-weight:700;font-size:13px;cursor:pointer;font-family:'Bebas Neue',sans-serif;letter-spacing:1.5px;box-shadow:0 4px 18px rgba(61,214,224,.25);transition:.2s;display:block;margin-top:12px}
+.btn-send:active{transform:scale(.98)}
+.btn-ok{background:rgba(74,222,128,.15);color:var(--ok);box-shadow:none}
+
+/* CHART */
+.chart-wrap{width:100%;height:130px;position:relative;margin-top:4px}
+.chart-svg{width:100%;height:100%}
+
+/* HISTORY */
+.hist-item{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-bottom:8px}
+.hist-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.hist-date{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--accent);letter-spacing:1px}
+.hist-nums{display:flex;gap:10px}
+.hist-num{font-size:13px;color:var(--text);font-weight:500}
+.hist-num span{font-size:10px;color:var(--dim)}
+.hist-chips{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
+.hist-meals{border-top:1px solid rgba(99,210,219,.08);padding-top:7px}
+.hist-meal-row{font-size:11px;color:var(--dim);margin-bottom:2px}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:32px 14px;border:1px dashed var(--muted);border-radius:14px;color:var(--muted);font-size:13px;line-height:1.9}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.panel.active{animation:fadeUp .25s ease}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.pulse{animation:pulse 2.5s ease infinite}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="app-title">DAVID</div>
+    <div class="app-sub">Body Tracker</div>
+  </div>
+  <div class="header-menu" id="menuLabel">今日：<span id="menuText">読み込み中...</span></div>
+</div>
+
+<!-- PANELS -->
+<div class="panel active" id="panel-david">
+  <div class="hero-card" id="heroCard">
+    <div class="hero-body">
+      <div class="david-wrap pulse" id="davidSvg"></div>
+      <div class="hero-stats">
+        <div class="fat-now">
+          <div class="fat-label">現在の体脂肪率</div>
+          <div class="fat-value" id="fatVal">—<span>%</span></div>
+          <div class="fat-remaining">あと<b id="fatRemain">—</b>%でダビデ</div>
+        </div>
+        <div class="wt-now" id="wtVal">—<span>kg</span></div>
+      </div>
+    </div>
+    <div class="prog-section">
+      <div class="prog-row"><span>体脂肪 20%</span><b id="fatPctLabel">0%</b><span>🗿 11.5%</span></div>
+      <div class="prog-track fat-track"><div class="prog-fill fat-fill" id="fatBar" style="width:0%"></div></div>
+      <div class="prog-row"><span>記録日数</span><span id="daysLabel">0 / 270日</span></div>
+      <div class="prog-track day-track"><div class="prog-fill day-fill" id="daysBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="streak-card" id="streakCard">
+    <div class="streak-fire" id="streakFire">💤</div>
+    <div class="streak-info">
+      <div class="streak-num" id="streakNum">0<span> 日連続記録</span></div>
+      <div class="streak-msg" id="streakMsg">最初の記録をつけよう！</div>
+    </div>
+    <div class="streak-ring">
+      <svg width="56" height="56" viewBox="0 0 56 56">
+        <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/>
+        <circle cx="28" cy="28" r="22" fill="none" stroke="var(--fire)" stroke-width="6"
+          stroke-dasharray="138.2" id="streakRingFill" stroke-dashoffset="138.2"
+          stroke-linecap="round" transform="rotate(-90 28 28)" style="transition:stroke-dashoffset 1s ease"/>
+        <text x="28" y="33" text-anchor="middle" fill="var(--fire)" font-size="11" font-weight="700" id="streakRingNum">0</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-label">実績バッジ</div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </div>
+
+  <div class="card" id="chartCard" style="margin-top:12px">
+    <div class="sec-label">体脂肪率の推移</div>
+    <div class="chart-wrap"><svg class="chart-svg" id="chartSvg" viewBox="0 0 360 110" preserveAspectRatio="none"></svg></div>
+  </div>
+
+  <button class="btn-gold" id="btnFeedback">✨ フィードバックデータをコピー</button>
+</div>
+
+<div class="panel" id="panel-today">
+  <div class="paste-zone">
+    <div class="paste-head">
+      <span class="paste-head-icon">📋</span>
+      <span class="paste-head-title">FITLOGからペースト</span>
+    </div>
+    <p class="paste-desc">朝の記録・食事・トレーニング、何度貼っても蓄積されます。</p>
+    <textarea class="paste-input" id="pasteInput" placeholder="【2026年5月11日（月）】朝の記録&#10;体重：66.0kg　体脂肪率：19.0%&#10;...&#10;ここにペースト"></textarea>
+    <div class="paste-status" id="pasteStatus"></div>
+  </div>
+
+  <div class="card" id="todayCard" style="display:none">
+    <div class="sec-label">今日の記録</div>
+    <div class="data-nums" id="todayNums"></div>
+    <div class="chips" id="todayChips"></div>
+    <div class="meal-section" id="todayMeals" style="display:none"></div>
+  </div>
+
+  <div class="empty" id="todayEmpty">
+    FITLOGの「クロードにコピー」で<br>コピーした内容を上に貼り付けてください
+  </div>
+</div>
+
+<div class="panel" id="panel-history">
+  <div class="sec-label">記録履歴 <span id="histCount" style="font-weight:300;letter-spacing:0;text-transform:none"></span></div>
+  <div id="histList"></div>
+  <div class="empty" id="histEmpty" style="display:none">まだ記録がありません</div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="switchTab('david',this)">
+    <span class="nav-icon">🗿</span>
+    <span class="nav-label">ダビデへの道</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('today',this)">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">今日</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('history',this)">
+    <span class="nav-icon">📜</span>
+    <span class="nav-label">履歴</span>
+  </button>
+</nav>
+
+<script>
+// ── 定数 ──────────────────────────────────────────────────────────────────
+const GOAL_FAT=11.5, START_FAT=20, START_WT=66, TOTAL_DAYS=270;
+const STORE_KEY='david_app';
+const MENU=['完全休養・チートデイ','胸・肩・三頭筋','ランニング','背中・二頭筋・体幹','休養','脚・臀部・腰回り','ランニング'];
+const MILESTONES=[
+  {days:7,  fat:null, label:'1週間継続',    icon:'🔥', color:'#ff6b35'},
+  {days:14, fat:null, label:'2週間継続',    icon:'⚡', color:'#fbbf24'},
+  {days:30, fat:null, label:'1ヶ月継続',    icon:'🏆', color:'#f0c040'},
+  {days:null,fat:19,  label:'体脂肪19%突破',icon:'💪', color:'#63d2b8'},
+  {days:null,fat:18,  label:'体脂肪18%突破',icon:'🎯', color:'#3dd6e0'},
+  {days:null,fat:17,  label:'体脂肪17%突破',icon:'⭐', color:'#60c8e8'},
+  {days:null,fat:16,  label:'体脂肪16%突破',icon:'🌟', color:'#a78bfa'},
+  {days:null,fat:15,  label:'体脂肪15%突破',icon:'👑', color:'#fbbf24'},
+  {days:null,fat:GOAL_FAT,label:'ダビデ達成！',icon:'🗿',color:'#f0c040'},
+];
+
+// ── ストレージ（localStorageを直接使用）──────────────────────────────────
+function loadData() {
+  try { const v=localStorage.getItem(STORE_KEY); return v?JSON.parse(v):[]; } catch { return []; }
+}
+function saveData(logs) {
+  try { localStorage.setItem(STORE_KEY,JSON.stringify(logs)); return true; } catch { return false; }
+}
+
+// ── グローバル状態 ────────────────────────────────────────────────────────
+let logs=loadData();
+const todayStr=()=>new Date().toISOString().split('T')[0];
+
+// ── パーサー ─────────────────────────────────────────────────────────────
+function parseLog(text) {
+  const r={};
+  const dm=text.match(/【(\d{4})年(\d{1,2})月(\d{1,2})日/);
+  if(dm) r.date=`${dm[1]}-${dm[2].padStart(2,'0')}-${dm[3].padStart(2,'0')}`;
+
+  if(text.includes('朝の記録')) {
+    const wm=text.match(/体重[：:]\s*([\d.]+)\s*kg/); if(wm) r.weight=parseFloat(wm[1]);
+    const bm=text.match(/体脂肪率[：:]\s*([\d.]+)\s*%/); if(bm) r.fat=parseFloat(bm[1]);
+    const sm=text.match(/睡眠[：:]\s*([\d.]+)\s*時間/); if(sm) r.sleep=parseFloat(sm[1]);
+    const nm=text.match(/💬[^\n]*\n([^\n]+)/); if(nm&&nm[1].trim()!=='なし') r.note=nm[1].trim();
+  }
+  if(text.includes('食事記録')) {
+    const tm=text.match(/合計[：:]\s*([\d,]+)\s*kcal/); if(tm) r.kcal=parseInt(tm[1].replace(/,/g,''));
+    const emojis=[['🌅','br'],['☀️','lu'],['🌙','di'],['🍪','sn']];
+    const stops=['🌅','☀️','🌙','🍪','合計'];
+    emojis.forEach(([e,k])=>{
+      const idx=text.indexOf(e); if(idx<0) return;
+      let end=text.length;
+      stops.forEach(s=>{ const ni=text.indexOf(s,idx+2); if(ni>idx&&ni<end) end=ni; });
+      const items=[...text.slice(idx,end).matchAll(/・([^（\n]+)/g)].map(m=>m[1].trim()).filter(Boolean);
+      if(items.length) r[k]=items.join('・');
+    });
+  }
+  if(text.includes('トレーニング記録')) {
+    if(text.includes('ランニング')) {
+      const m=text.match(/ランニング[：:]\s*([^\n]+)/);
+      r.training=m?'ランニング：'+m[1].trim():'ランニング';
+    } else {
+      const tn=text.match(/💪\s*([^\n]+)/);
+      const ex=text.split('\n').filter(l=>/^[✅❌－]/.test(l));
+      const ok=ex.filter(l=>l.startsWith('✅')).length;
+      r.training=(tn?tn[1].trim():'筋トレ')+`（${ok}/${ex.length}完了）`;
+    }
+  }
+  return r;
+}
+
+// ── ストリーク計算 ────────────────────────────────────────────────────────
+function calcStreak() {
+  const dates=[...new Set(logs.map(l=>l.date))].sort().reverse();
+  let n=0; const now=new Date(); now.setHours(0,0,0,0);
+  for(let i=0;i<dates.length;i++){const d=new Date(dates[i]);d.setHours(0,0,0,0);const diff=Math.round((now-d)/86400000);if(diff===i||diff===i+1)n++;else break;}
+  return n;
+}
+
+// ── ダビデ像SVG ───────────────────────────────────────────────────────────
+function davidSVG(pct) {
+  const g=Math.min(1,pct/100);
+  const s=`drop-shadow(0 0 ${8+g*16}px rgba(61,214,224,${0.25+g*0.55}))`;
+  return `<svg viewBox="0 0 120 200" width="80" height="133" style="filter:${s}">
+    <defs>
+      <linearGradient id="dg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#3dd6e0" stop-opacity="${0.25+g*0.75}"/>
+        <stop offset="100%" stop-color="#63d2b8" stop-opacity="${0.1+g*0.65}"/>
+      </linearGradient>
+      <clipPath id="cp"><rect x="0" y="${200-200*pct/100}" width="120" height="200"/></clipPath>
+    </defs>
+    <g opacity="0.12" fill="#7ab3bc">
+      <ellipse cx="60" cy="18" rx="14" ry="16"/>
+      <rect x="50" y="32" width="20" height="4" rx="2"/>
+      <path d="M38 36 Q30 60 28 90 L40 90 Q42 68 48 56 L48 100 L42 140 L52 140 L56 110 L64 110 L68 140 L78 140 L72 100 L72 56 Q78 68 80 90 L92 90 Q90 60 82 36 Z"/>
+      <path d="M28 90 Q18 100 16 120 L28 122 Q30 108 36 98 Z"/>
+      <path d="M92 90 Q102 100 104 120 L92 122 Q90 108 84 98 Z"/>
+      <rect x="42" y="140" width="10" height="55" rx="5"/>
+      <rect x="68" y="140" width="10" height="55" rx="5"/>
+    </g>
+    <g clip-path="url(#cp)" fill="url(#dg)">
+      <ellipse cx="60" cy="18" rx="14" ry="16"/>
+      <rect x="50" y="32" width="20" height="4" rx="2"/>
+      <path d="M38 36 Q30 60 28 90 L40 90 Q42 68 48 56 L48 100 L42 140 L52 140 L56 110 L64 110 L68 140 L78 140 L72 100 L72 56 Q78 68 80 90 L92 90 Q90 60 82 36 Z"/>
+      <path d="M28 90 Q18 100 16 120 L28 122 Q30 108 36 98 Z"/>
+      <path d="M92 90 Q102 100 104 120 L92 122 Q90 108 84 98 Z"/>
+      <rect x="42" y="140" width="10" height="55" rx="5"/>
+      <rect x="68" y="140" width="10" height="55" rx="5"/>
+    </g>
+  </svg>`;
+}
+
+// ── チャート描画 ──────────────────────────────────────────────────────────
+function drawChart() {
+  const svg=document.getElementById('chartSvg');
+  const data=logs.slice(-20).filter(l=>l.fat);
+  if(data.length<2){svg.innerHTML='<text x="180" y="60" text-anchor="middle" fill="#2a4a58" font-size="12">2日以上記録するとグラフが表示されます</text>';return;}
+  const W=360,H=110,pad={t:10,b:24,l:28,r:10};
+  const vals=data.map(l=>l.fat);
+  const mn=Math.min(...vals,GOAL_FAT)-0.5, mx=Math.max(...vals)+0.5;
+  const x=i=>pad.l+(W-pad.l-pad.r)*i/(data.length-1);
+  const y=v=>pad.t+(H-pad.t-pad.b)*(1-(v-mn)/(mx-mn));
+  const pts=data.map((l,i)=>`${x(i)},${y(l.fat)}`).join(' ');
+  const goalY=y(GOAL_FAT);
+  svg.innerHTML=`
+    <defs>
+      <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#63d2b8" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="#63d2b8" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <line x1="${pad.l}" y1="${goalY}" x2="${W-pad.r}" y2="${goalY}" stroke="#f0c040" stroke-width="1" stroke-dasharray="4,3" opacity=".5"/>
+    <text x="${W-pad.r-2}" y="${goalY-3}" fill="#f0c040" font-size="8" text-anchor="end">目標</text>
+    <polygon points="${x(0)},${H-pad.b} ${pts} ${x(data.length-1)},${H-pad.b}" fill="url(#cg)"/>
+    <polyline points="${pts}" fill="none" stroke="#63d2b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${data.map((l,i)=>`<circle cx="${x(i)}" cy="${y(l.fat)}" r="3" fill="#63d2b8"/>`).join('')}
+    ${data.map((l,i)=>`<text x="${x(i)}" y="${H-pad.b+14}" text-anchor="middle" fill="#2a4a58" font-size="9">${l.date.slice(5).replace('-','/')}</text>`).join('')}
+  `;
+}
+
+// ── フィードバックテキスト ──────────────────────────────────────────────
+function buildReport() {
+  const cur=logs.find(l=>l.date===todayStr())||logs[logs.length-1];
+  if(!cur) return '記録がありません';
+  const hist=logs.slice(-6).filter(l=>l.date!==cur.date).map(l=>`${l.date}:${l.weight||'-'}kg/${l.fat||'-'}%`).join(' / ');
+  return [
+    `【${cur.date}】今日のデータ`,
+    cur.weight   && `⚖️ 体重：${cur.weight}kg`,
+    cur.fat      && `📊 体脂肪率：${cur.fat}%`,
+    cur.sleep    && `😴 睡眠：${cur.sleep}時間`,
+    cur.br       && `🌅 朝：${cur.br}`,
+    cur.lu       && `☀️ 昼：${cur.lu}`,
+    cur.di       && `🌙 夜：${cur.di}`,
+    cur.sn       && `🍪 間食：${cur.sn}`,
+    cur.kcal     && `🔥 合計：${cur.kcal.toLocaleString()}kcal`,
+    cur.training && `💪 ${cur.training}`,
+    cur.note     && `💬 ${cur.note}`,
+    `\n📅 過去データ：${hist||'初回'}`,
+  ].filter(Boolean).join('\n');
+}
+
+// ── UI更新 ─────────────────────────────────────────────────────────────
+function render() {
+  const latest=logs.length?logs[logs.length-1]:null;
+  const streak=calcStreak();
+  const curFat=latest?.fat??START_FAT;
+  const curWt=latest?.weight??START_WT;
+  const fatPct=Math.min(100,Math.round(((START_FAT-curFat)/(START_FAT-GOAL_FAT))*100));
+  const daysPct=Math.min(100,Math.round((logs.length/TOTAL_DAYS)*100));
+  const minFat=Math.min(...logs.map(l=>l.fat).filter(Boolean),99);
+
+  // header
+  document.getElementById('menuText').textContent=MENU[new Date().getDay()];
+
+  // hero
+  document.getElementById('davidSvg').innerHTML=davidSVG(fatPct);
+  document.getElementById('fatVal').innerHTML=`${curFat}<span>%</span>`;
+  document.getElementById('fatRemain').textContent=Math.max(0,curFat-GOAL_FAT).toFixed(1);
+  document.getElementById('wtVal').innerHTML=`${curWt}<span>kg</span>`;
+  document.getElementById('fatPctLabel').textContent=`${fatPct}% 達成`;
+  document.getElementById('fatBar').style.width=fatPct+'%';
+  document.getElementById('daysLabel').textContent=`${logs.length} / ${TOTAL_DAYS}日`;
+  document.getElementById('daysBar').style.width=daysPct+'%';
+
+  // streak
+  const fire=streak>=7?'🔥🔥🔥':streak>=3?'🔥🔥':streak>=1?'🔥':'💤';
+  const msg=streak===0?'最初の記録をつけよう！':streak<3?'いいスタート！':streak<7?'この調子！':streak<14?'1週間突破！':'圧倒的継続力！';
+  document.getElementById('streakFire').textContent=fire;
+  document.getElementById('streakNum').innerHTML=`${streak}<span> 日連続記録</span>`;
+  document.getElementById('streakMsg').textContent=msg;
+  const ringCirc=138.2, offset=ringCirc*(1-Math.min(streak/30,1));
+  document.getElementById('streakRingFill').style.strokeDashoffset=offset;
+  document.getElementById('streakRingNum').textContent=streak;
+  if(streak===0) document.getElementById('streakRingFill').setAttribute('stroke','#2a4a58');
+  else document.getElementById('streakRingFill').setAttribute('stroke','var(--fire)');
+
+  // badges
+  const bg=document.getElementById('badgeGrid');
+  bg.innerHTML=MILESTONES.map(m=>{
+    const earned=(m.days&&streak>=m.days)||(m.fat&&minFat<=m.fat);
+    return `<div class="badge-item ${earned?'earned':'locked'}" style="${earned?`border-color:${m.color}40`:''}">
+      <span class="badge-icon">${m.icon}</span>
+      <div class="badge-label" style="color:${earned?m.color:'#2a4a58'}">${m.label}</div>
+      ${earned?'<div class="badge-done">✓ 達成</div>':''}
+    </div>`;
+  }).join('');
+
+  // chart
+  drawChart();
+
+  // today
+  const cur=logs.find(l=>l.date===todayStr());
+  const hasData=cur&&(cur.weight||cur.fat||cur.training||cur.br);
+  document.getElementById('todayCard').style.display=hasData?'block':'none';
+  document.getElementById('todayEmpty').style.display=hasData?'none':'block';
+  if(hasData) renderToday(cur);
+
+  // history
+  renderHistory();
+}
+
+function renderToday(log) {
+  const nums=[];
+  if(log.weight) nums.push(`<div class="data-num"><div class="data-num-label">体重</div><div class="data-num-val" style="color:var(--accent)">${log.weight}<span class="data-num-unit">kg</span></div></div>`);
+  if(log.fat)    nums.push(`<div class="data-num"><div class="data-num-label">体脂肪率</div><div class="data-num-val" style="color:var(--mint)">${log.fat}<span class="data-num-unit">%</span></div></div>`);
+  if(log.sleep)  nums.push(`<div class="data-num"><div class="data-num-label">睡眠</div><div class="data-num-val" style="color:#60c8e8">${log.sleep}<span class="data-num-unit">h</span></div></div>`);
+  if(log.kcal)   nums.push(`<div class="data-num"><div class="data-num-label">カロリー</div><div class="data-num-val" style="color:var(--warn)">${log.kcal.toLocaleString()}<span class="data-num-unit">kcal</span></div></div>`);
+  document.getElementById('todayNums').innerHTML=nums.join('');
+
+  const chips=[];
+  if(log.training) chips.push(`<span class="chip">💪 ${log.training}</span>`);
+  document.getElementById('todayChips').innerHTML=chips.join('');
+
+  const meals=[];
+  if(log.br) meals.push(`<div class="meal-row"><b>🌅 朝</b>　${log.br}</div>`);
+  if(log.lu) meals.push(`<div class="meal-row"><b>☀️ 昼</b>　${log.lu}</div>`);
+  if(log.di) meals.push(`<div class="meal-row"><b>🌙 夜</b>　${log.di}</div>`);
+  if(log.sn) meals.push(`<div class="meal-row"><b>🍪 間食</b>　${log.sn}</div>`);
+  if(log.kcal) meals.push(`<div class="meal-total">合計：${log.kcal.toLocaleString()} kcal</div>`);
+  const ms=document.getElementById('todayMeals');
+  if(meals.length){ ms.style.display='block'; ms.innerHTML=meals.join(''); }
+  else ms.style.display='none';
+}
+
+function renderHistory() {
+  const list=document.getElementById('histList');
+  const empty=document.getElementById('histEmpty');
+  document.getElementById('histCount').textContent=logs.length+'件';
+  if(!logs.length){ list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  list.innerHTML=[...logs].reverse().map(l=>{
+    const nums=[];
+    if(l.weight) nums.push(`<span class="hist-num">${l.weight}<span>kg</span></span>`);
+    if(l.fat)    nums.push(`<span class="hist-num">${l.fat}<span>%</span></span>`);
+    const chips=[];
+    if(l.training) chips.push(`<span class="chip">💪 ${l.training}</span>`);
+    if(l.kcal)     chips.push(`<span class="chip">🔥 ${l.kcal.toLocaleString()}kcal</span>`);
+    if(l.sleep)    chips.push(`<span class="chip">😴 ${l.sleep}h</span>`);
+    const meals=[];
+    if(l.br) meals.push(`<div class="hist-meal-row">🌅 ${l.br}</div>`);
+    if(l.lu) meals.push(`<div class="hist-meal-row">☀️ ${l.lu}</div>`);
+    if(l.di) meals.push(`<div class="hist-meal-row">🌙 ${l.di}</div>`);
+    return `<div class="hist-item">
+      <div class="hist-head"><span class="hist-date">${l.date}</span><div class="hist-nums">${nums.join('')}</div></div>
+      ${chips.length?`<div class="hist-chips">${chips.join('')}</div>`:''}
+      ${meals.length?`<div class="hist-meals">${meals.join('')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── ペースト処理 ──────────────────────────────────────────────────────────
+document.getElementById('pasteInput').addEventListener('input', function() {
+  const text=this.value;
+  if(!text.trim()) return;
+  const r=parseLog(text);
+  const has=r.weight||r.fat||r.training||r.br||r.kcal;
+  if(!has) return;
+  const date=r.date||todayStr();
+  const existing=logs.find(l=>l.date===date)||{date};
+  const merged={...existing,...r};
+  const idx=logs.findIndex(l=>l.date===date);
+  if(idx>=0) logs[idx]=merged; else logs.push(merged);
+  logs.sort((a,b)=>a.date.localeCompare(b.date));
+  const ok=saveData(logs);
+  const st=document.getElementById('pasteStatus');
+  st.className='paste-status paste-ok';
+  st.textContent=ok?'✅ 保存しました！':'⚠️ 保存に失敗しました';
+  render();
+  const self=this;
+  setTimeout(()=>{ self.value=''; st.textContent=''; },2500);
+});
+
+// ── フィードバックコピー ──────────────────────────────────────────────────
+document.getElementById('btnFeedback').addEventListener('click', function() {
+  const text=buildReport();
+  const btn=this;
+  try {
+    navigator.clipboard.writeText(text).then(()=>{
+      btn.textContent='✅ コピーしました！フィードバックチャットに貼り付けてください';
+      btn.classList.add('btn-ok');
+      setTimeout(()=>{ btn.textContent='✨ フィードバックデータをコピー'; btn.classList.remove('btn-ok'); },3500);
+    });
+  } catch {
+    const ta=document.createElement('textarea');
+    ta.value=text; ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent='✅ コピーしました！フィードバックチャットに貼り付けてください';
+    btn.classList.add('btn-ok');
+    setTimeout(()=>{ btn.textContent='✨ フィードバックデータをコピー'; btn.classList.remove('btn-ok'); },3500);
+  }
+});
+
+// ── タブ切り替え ──────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── 初期化 ───────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
