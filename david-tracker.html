@@ -454,7 +454,7 @@ document.getElementById('pasteInput').addEventListener('input',function(){
   const text=this.value;
   if(!text.trim()) return;
   const r=parseLog(text);
-  const has=r.weight||r.fat||r.training||r.br||r.br_kcal;
+  const has=r.weight||r.fat||r.training||r.br||r.br_kcal||r.lu||r.lu_kcal||r.di||r.di_kcal||r.sn||r.sn_kcal;
   if(!has) return;
   const date=r.date||todayStr();
   const existing=logs.find(l=>l.date===date)||{date};
