@@ -251,8 +251,8 @@ function parseLog(text){
     const nm=text.match(/💬[^\n]*\n([^\n]+)/); if(nm&&nm[1].trim()!=='なし') r.note=nm[1].trim();
   }
   if(text.includes('食事記録')){
-    const emojis=[['🌅','br'],['☀️','lu'],['🌙','di'],['🍪','sn']];
-    const stops=['🌅','☀️','🌙','🍪','合計'];
+    const emojis=[['🌅','br'],['🌞','lu'],['🌙','di'],['🍪','sn']];
+    const stops=['🌅','🌞','🌙','🍪','合計'];
     emojis.forEach(([e,k])=>{
       const idx=text.indexOf(e); if(idx<0) return;
       let end=text.length;
@@ -350,7 +350,7 @@ function buildReport(){
     cur.fat      &&`📊 体脂肪率：${cur.fat}%`,
     cur.sleep    &&`😴 睡眠：${cur.sleep}時間`,
     cur.br       &&`🌅 朝：${cur.br}`,
-    cur.lu       &&`☀️ 昼：${cur.lu}`,
+    cur.lu       &&`🌞 昼：${cur.lu}`,
     cur.di       &&`🌙 夜：${cur.di}`,
     cur.sn       &&`🍪 間食：${cur.sn}`,
     cur.kcal     &&`🔥 合計：${cur.kcal.toLocaleString()}kcal`,
@@ -415,7 +415,7 @@ function renderToday(log){
   document.getElementById('todayChips').innerHTML=chips.join('');
   const meals=[];
   if(log.br) meals.push(`<div class="meal-row"><b>🌅 朝</b>　${log.br}</div>`);
-  if(log.lu) meals.push(`<div class="meal-row"><b>☀️ 昼</b>　${log.lu}</div>`);
+  if(log.lu) meals.push(`<div class="meal-row"><b>🌞 昼</b>　${log.lu}</div>`);
   if(log.di) meals.push(`<div class="meal-row"><b>🌙 夜</b>　${log.di}</div>`);
   if(log.sn) meals.push(`<div class="meal-row"><b>🍪 間食</b>　${log.sn}</div>`);
   if(log.kcal) meals.push(`<div class="meal-total">合計：${log.kcal.toLocaleString()} kcal</div>`);
@@ -440,7 +440,7 @@ function renderHistory(){
     if(l.sleep)    chips.push(`<span class="chip">😴 ${l.sleep}h</span>`);
     const meals=[];
     if(l.br) meals.push(`<div class="hist-meal-row">🌅 ${l.br}</div>`);
-    if(l.lu) meals.push(`<div class="hist-meal-row">☀️ ${l.lu}</div>`);
+    if(l.lu) meals.push(`<div class="hist-meal-row">🌞 ${l.lu}</div>`);
     if(l.di) meals.push(`<div class="hist-meal-row">🌙 ${l.di}</div>`);
     return `<div class="hist-item">
       <div class="hist-head"><span class="hist-date">${l.date}</span><div class="hist-nums">${nums.join('')}</div></div>
