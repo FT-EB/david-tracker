@@ -244,9 +244,9 @@ function parseLog(text){
   const r={};
   const dm=text.match(/【(\d{4})年(\d{1,2})月(\d{1,2})日/);
   if(dm) r.date=`${dm[1]}-${dm[2].padStart(2,'0')}-${dm[3].padStart(2,'0')}`;
+  const wm=text.match(/体重[：:]\s*([\d.]+)\s*kg/); if(wm) r.weight=parseFloat(wm[1]);
+  const bm=text.match(/体脂肪率?[：:]\s*([\d.]+)\s*%/); if(bm) r.fat=parseFloat(bm[1]);
   if(text.includes('朝の記録')){
-    const wm=text.match(/体重[：:]\s*([\d.]+)\s*kg/); if(wm) r.weight=parseFloat(wm[1]);
-    const bm=text.match(/体脂肪率[：:]\s*([\d.]+)\s*%/); if(bm) r.fat=parseFloat(bm[1]);
     const sm=text.match(/睡眠[：:]\s*([\d.]+)\s*時間/); if(sm) r.sleep=parseFloat(sm[1]);
     const nm=text.match(/💬[^\n]*\n([^\n]+)/); if(nm&&nm[1].trim()!=='なし') r.note=nm[1].trim();
   }
@@ -442,6 +442,7 @@ function renderHistory(){
     if(l.br) meals.push(`<div class="hist-meal-row">🌅 ${l.br}</div>`);
     if(l.lu) meals.push(`<div class="hist-meal-row">🌞 ${l.lu}</div>`);
     if(l.di) meals.push(`<div class="hist-meal-row">🌙 ${l.di}</div>`);
+    if(l.sn) meals.push(`<div class="hist-meal-row">🍪 ${l.sn}</div>`);
     return `<div class="hist-item">
       <div class="hist-head"><span class="hist-date">${l.date}</span><div class="hist-nums">${nums.join('')}</div></div>
       ${chips.length?`<div class="hist-chips">${chips.join('')}</div>`:''}
