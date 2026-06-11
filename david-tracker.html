@@ -251,8 +251,8 @@ function parseLog(text){
     const nm=text.match(/💬[^\n]*\n([^\n]+)/); if(nm&&nm[1].trim()!=='なし') r.note=nm[1].trim();
   }
   if(text.includes('食事記録')){
-    const emojis=[['🌅','br'],['🌞','lu'],['🌙','di'],['🍪','sn']];
-    const stops=['🌅','🌞','🌙','🍪','合計'];
+const emojis=[['🌅','br'],['☀️','lu'],['🌙','di'],['🍪','sn']];
+const stops=['🌅','☀️','🌙','🍪','合計'];
     emojis.forEach(([e,k])=>{
       const idx=text.indexOf(e); if(idx<0) return;
       let end=text.length;
