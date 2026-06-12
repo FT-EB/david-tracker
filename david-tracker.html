@@ -307,4 +307,373 @@ function davidSVG(pct){
   const broll2=`M ${f(60-BE+8)} 50 Q 60 54 ${f(60+BE-8)} 50`;
   const absA=Math.max(0,(t-0.45)*2.2).toFixed(2);
   const absW=L(0,8);
-  const absH=[62,70,78].map(y=>`M ${f(60-absW)} ${y} L ${f(60+absW)} ${y}`
+  const absH=[62,70,78].map(y=>`M ${f(60-absW)} ${y} L ${f(60+absW)} ${y}`).join(' ');
+  const absV=`M 60 58 L 60 87`;
+  const pecA=Math.max(0,(t-0.35)*1.8).toFixed(2);
+  const pecW=L(0,11);
+  const lPec=`M ${f(60-pecW+2)} 46 Q ${f(60-pecW-3)} 54 ${f(60-pecW+4)} 61`;
+  const rPec=`M ${f(60+pecW-2)} 46 Q ${f(60+pecW+3)} 54 ${f(60+pecW-4)} 61`;
+  const hRx=f(L(14,13));
+  const labels=['チビデ😅','まだまだ💪','いい感じ🔥','もうすぐ⚡','ダビデ🗿'];
+  const label=labels[Math.min(4,Math.floor(t*5))];
+  return `<svg viewBox="0 0 120 207" width="82" height="142" style="filter:drop-shadow(0 0 ${glowPx}px rgba(61,214,224,${glowA}))">
+  <defs>
+    <linearGradient id="dg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3dd6e0" stop-opacity="${f(0.28+t*0.62)}"/>
+      <stop offset="100%" stop-color="#63d2b8" stop-opacity="${f(0.08+t*0.55)}"/>
+    </linearGradient>
+  </defs>
+  <path d="${path}" fill="url(#dg)" stroke="rgba(61,214,224,${strokeA})" stroke-width="1"/>
+  <ellipse cx="60" cy="18" rx="${hRx}" ry="16" fill="url(#dg)" stroke="rgba(61,214,224,${strokeA})" stroke-width="0.8"/>
+  <rect x="${f(60-L(7,5.5))}" y="33" width="${f(L(14,11))}" height="6" rx="2" fill="url(#dg)"/>
+  <path d="${broll1}" fill="none" stroke="rgba(99,210,184,${bellyA})" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="${broll2}" fill="none" stroke="rgba(99,210,184,${bellyA})" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="${absH}" fill="none" stroke="rgba(61,214,224,${absA})" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="${absV}" fill="none" stroke="rgba(61,214,224,${f(Math.max(0,parseFloat(absA)*0.5))})" stroke-width="0.7"/>
+  <path d="${lPec}" fill="none" stroke="rgba(61,214,224,${pecA})" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="${rPec}" fill="none" stroke="rgba(61,214,224,${pecA})" stroke-width="1.1" stroke-linecap="round"/>
+  <text x="60" y="204" text-anchor="middle" fill="rgba(61,214,224,0.45)" font-size="7" font-family="sans-serif">${label}</text>
+</svg>`;
+}
+
+// ============================================================
+// 次のマイルストーン
+// ============================================================
+function renderMilestone(curFat){
+  const el=document.getElementById('milestoneContent');
+  const milestones=[...FAT_STEPS.filter(m=>m>GOAL_FAT),GOAL_FAT];
+  const next=milestones.find(m=>curFat>m);
+  if(!next){
+    el.innerHTML=`<div style="text-align:center;padding:10px 0">
+      <div style="font-size:32px;margin-bottom:6px">🗿</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px">ダビデ達成！</div>
+    </div>`;
+    return;
+  }
+  const prevIdx=milestones.indexOf(next)-1;
+  const prev=prevIdx>=0?milestones[prevIdx]:START_FAT;
+  const progress=Math.min(100,Math.max(0,Math.round((prev-curFat)/(prev-next)*100)));
+  const remaining=(curFat-next).toFixed(1);
+  el.innerHTML=`
+    <div style="margin-bottom:10px;display:flex;align-items:baseline;gap:8px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--accent);letter-spacing:1px;line-height:1">${next}<span style="font-size:18px">%</span></div>
+      <div style="font-size:12px;color:var(--dim)">突破まで<br><b style="color:var(--gold);font-size:16px">あと${remaining}%</b></div>
+    </div>
+    <div class="motive-bar-track">
+      <div class="motive-bar-fill" style="width:${progress}%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:2px">
+      <span>${prev}%</span>
+      <span style="color:var(--accent);font-weight:700">${progress}% 達成</span>
+      <span>${next}%</span>
+    </div>`;
+}
+
+// ============================================================
+// ペース分析
+// ============================================================
+function renderPace(curFat){
+  const el=document.getElementById('paceContent');
+  const fatLogs=logs.filter(l=>l.fat).sort((a,b)=>a.date.localeCompare(b.date));
+  if(fatLogs.length<3){
+    const need=3-fatLogs.length;
+    el.innerHTML=`<div style="font-size:12px;color:var(--muted);line-height:2">あと<b style="color:var(--accent)"> ${need}日分 </b>の体脂肪記録でペース分析が始まります 📊</div>`;
+    return;
+  }
+  const recent=fatLogs.slice(-Math.min(10,fatLogs.length));
+  const first=recent[0],last=recent[recent.length-1];
+  const daysDiff=(new Date(last.date)-new Date(first.date))/86400000;
+  if(daysDiff<1){el.innerHTML='<div style="font-size:12px;color:var(--muted)">もう少しデータが必要です</div>';return;}
+  const ratePerWeek=((last.fat-first.fat)/daysDiff)*7;
+  const ratePerMonth=ratePerWeek*4.33;
+  const rateColor=ratePerWeek<-0.05?'var(--ok)':ratePerWeek>0.05?'#f87171':'var(--warn)';
+  const sign=ratePerWeek>0?'+':'';
+  let goalHTML='';
+  if(ratePerWeek<-0.05){
+    const weeks=(curFat-GOAL_FAT)/Math.abs(ratePerWeek);
+    const gd=new Date();gd.setDate(gd.getDate()+Math.round(weeks*7));
+    const gs=gd.getFullYear()+'年'+(gd.getMonth()+1)+'月';
+    goalHTML=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px">このペースなら <b style="color:var(--ok)">${gs}にダビデ達成！</b> 🗿</div>`;
+  }else if(ratePerWeek>0.05){
+    goalHTML=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:#f87171">体脂肪が増加傾向です。食事と運動を見直そう！</div>`;
+  }else{
+    goalHTML=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--warn)">ほぼ横ばいです。もう一歩頑張ろう！</div>`;
+  }
+  el.innerHTML=`
+    <div class="motive-nums">
+      <div class="motive-num">
+        <div class="motive-num-label">週ペース</div>
+        <div class="motive-num-val" style="color:${rateColor}">${sign}${ratePerWeek.toFixed(2)}<span style="font-size:11px;color:var(--dim)">%</span></div>
+      </div>
+      <div class="motive-num">
+        <div class="motive-num-label">月ペース</div>
+        <div class="motive-num-val" style="color:${rateColor}">${sign}${ratePerMonth.toFixed(1)}<span style="font-size:11px;color:var(--dim)">%</span></div>
+      </div>
+      <div class="motive-num">
+        <div class="motive-num-label">記録日数</div>
+        <div class="motive-num-val" style="color:var(--accent)">${fatLogs.length}<span style="font-size:11px;color:var(--dim)">日</span></div>
+      </div>
+    </div>
+    ${goalHTML}`;
+}
+
+// ============================================================
+// 目標設定の保存
+// ============================================================
+function saveSettings(){
+  const gf=parseFloat(document.getElementById('set-goal-fat').value);
+  const sf=parseFloat(document.getElementById('set-start-fat').value);
+  const sw=parseFloat(document.getElementById('set-start-wt').value);
+  const td=parseInt(document.getElementById('set-days').value);
+  if(!isNaN(gf)&&gf>0)  GOAL_FAT=gf;
+  if(!isNaN(sf)&&sf>0)  START_FAT=sf;
+  if(!isNaN(sw)&&sw>0)  START_WT=sw;
+  if(!isNaN(td)&&td>0)  TOTAL_DAYS=td;
+  try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({GOAL_FAT,START_FAT,START_WT,TOTAL_DAYS}));}catch(e){}
+  const st=document.getElementById('settings-status');
+  st.textContent='✅ 保存しました！';
+  setTimeout(()=>st.textContent='',2000);
+  render();
+}
+
+function fillSettingsInputs(){
+  document.getElementById('set-goal-fat').value=GOAL_FAT;
+  document.getElementById('set-start-fat').value=START_FAT;
+  document.getElementById('set-start-wt').value=START_WT;
+  document.getElementById('set-days').value=TOTAL_DAYS;
+}
+
+// ============================================================
+// parseLog
+// ============================================================
+function parseLog(text){
+  const r={};
+  const dm=text.match(/【(\d{4})年(\d{1,2})月(\d{1,2})日/);
+  if(dm) r.date=`${dm[1]}-${dm[2].padStart(2,'0')}-${dm[3].padStart(2,'0')}`;
+  const wm=text.match(/体重[：:]\s*([\d.]+)\s*kg/); if(wm) r.weight=parseFloat(wm[1]);
+  const bm=text.match(/体脂肪率?[：:]\s*([\d.]+)\s*%/); if(bm) r.fat=parseFloat(bm[1]);
+  if(text.includes('朝の記録')){
+    const sm=text.match(/睡眠[：:]\s*([\d.]+)\s*時間/); if(sm) r.sleep=parseFloat(sm[1]);
+    const nm=text.match(/💬[^\n]*\n([^\n]+)/); if(nm&&nm[1].trim()!=='なし') r.note=nm[1].trim();
+  }
+  if(text.includes('食事記録')){
+    const emojis=[['🌅','br'],['☀️','lu'],['🌙','di'],['🍪','sn']];
+    const stops=['🌅','☀️','🌙','🍪','合計'];
+    emojis.forEach(([e,k])=>{
+      const idx=text.indexOf(e); if(idx<0) return;
+      let end=text.length;
+      stops.forEach(s=>{const ni=text.indexOf(s,idx+2);if(ni>idx&&ni<end)end=ni;});
+      const chunk=text.slice(idx,end);
+      const items=[...chunk.matchAll(/・([^（\n]+)/g)].map(m=>m[1].trim()).filter(Boolean);
+      if(items.length) r[k]=items.join('・');
+      const kcals=[...chunk.matchAll(/（([\d,]+)\s*kcal）/gi)].map(m=>parseInt(m[1].replace(/,/g,'')));
+      if(kcals.length) r[k+'_kcal']=kcals.reduce((a,b)=>a+b,0);
+    });
+  }
+  if(text.includes('トレーニング記録')){
+    if(text.includes('ランニング')){
+      const m=text.match(/ランニング[：:]\s*([^\n]+)/);
+      r.training=m?'ランニング：'+m[1].trim():'ランニング';
+    }else{
+      const tn=text.match(/💪\s*([^\n]+)/);
+      const ex=text.split('\n').filter(l=>/^[✅❌－]/.test(l));
+      const ok=ex.filter(l=>l.startsWith('✅')).length;
+      r.training=(tn?tn[1].trim():'筋トレ')+`（${ok}/${ex.length}完了）`;
+    }
+  }
+  return r;
+}
+
+function calcStreak(){
+  const dates=[...new Set(logs.map(l=>l.date))].sort().reverse();
+  let n=0;const now=new Date();now.setHours(0,0,0,0);
+  for(let i=0;i<dates.length;i++){
+    const d=new Date(dates[i]);d.setHours(0,0,0,0);
+    const diff=Math.round((now-d)/86400000);
+    if(diff===i||diff===i+1)n++;else break;
+  }
+  return n;
+}
+
+function drawChart(){
+  const svg=document.getElementById('chartSvg');
+  const data=logs.slice(-20).filter(l=>l.fat);
+  if(data.length<2){svg.innerHTML='<text x="180" y="60" text-anchor="middle" fill="#2a4a58" font-size="12">2日以上記録するとグラフが表示されます</text>';return;}
+  const W=360,H=110,pad={t:10,b:24,l:28,r:10};
+  const vals=data.map(l=>l.fat);
+  const mn=Math.min(...vals,GOAL_FAT)-0.5,mx=Math.max(...vals)+0.5;
+  const x=i=>pad.l+(W-pad.l-pad.r)*i/(data.length-1);
+  const y=v=>pad.t+(H-pad.t-pad.b)*(1-(v-mn)/(mx-mn));
+  const pts=data.map((l,i)=>`${x(i)},${y(l.fat)}`).join(' ');
+  const goalY=y(GOAL_FAT);
+  svg.innerHTML=`<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#63d2b8" stop-opacity=".35"/>
+    <stop offset="100%" stop-color="#63d2b8" stop-opacity="0"/>
+  </linearGradient></defs>
+  <line x1="${pad.l}" y1="${goalY}" x2="${W-pad.r}" y2="${goalY}" stroke="#f0c040" stroke-width="1" stroke-dasharray="4,3" opacity=".5"/>
+  <text x="${W-pad.r-2}" y="${goalY-3}" fill="#f0c040" font-size="8" text-anchor="end">目標</text>
+  <polygon points="${x(0)},${H-pad.b} ${pts} ${x(data.length-1)},${H-pad.b}" fill="url(#cg)"/>
+  <polyline points="${pts}" fill="none" stroke="#63d2b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  ${data.map((l,i)=>`<circle cx="${x(i)}" cy="${y(l.fat)}" r="3" fill="#63d2b8"/>`).join('')}
+  ${data.map((l,i)=>`<text x="${x(i)}" y="${H-pad.b+14}" text-anchor="middle" fill="#2a4a58" font-size="9">${l.date.slice(5).replace('-','/')}</text>`).join('')}`;
+}
+
+function buildReport(){
+  const cur=logs.find(l=>l.date===todayStr())||logs[logs.length-1];
+  if(!cur) return '記録がありません';
+  const hist=logs.slice(-6).filter(l=>l.date!==cur.date).map(l=>`${l.date}:${l.weight||'-'}kg/${l.fat||'-'}%`).join(' / ');
+  return [
+    `【${cur.date}】今日のデータ`,
+    cur.weight&&`⚖️ 体重：${cur.weight}kg`,
+    cur.fat&&`📊 体脂肪率：${cur.fat}%`,
+    cur.sleep&&`😴 睡眠：${cur.sleep}時間`,
+    cur.br&&`🌅 朝：${cur.br}`,
+    cur.lu&&`☀️ 昼：${cur.lu}`,
+    cur.di&&`🌙 夜：${cur.di}`,
+    cur.sn&&`🍪 間食：${cur.sn}`,
+    cur.kcal&&`🔥 合計：${cur.kcal.toLocaleString()}kcal`,
+    cur.training&&`💪 ${cur.training}`,
+    cur.note&&`💬 ${cur.note}`,
+    `\n📅 過去データ：${hist||'初回'}`,
+  ].filter(Boolean).join('\n');
+}
+
+function render(){
+  const latest=logs.length?logs[logs.length-1]:null;
+  const streak=calcStreak();
+  const curFat=latest?.fat??START_FAT;
+  const curWt=latest?.weight??START_WT;
+  const fatPct=Math.min(100,Math.max(0,Math.round(((START_FAT-curFat)/(START_FAT-GOAL_FAT))*100)));
+  const daysPct=Math.min(100,Math.round((logs.length/TOTAL_DAYS)*100));
+  document.getElementById('menuText').textContent=MENU[new Date().getDay()];
+  document.getElementById('davidSvg').innerHTML=davidSVG(fatPct);
+  document.getElementById('fatVal').innerHTML=`${curFat}<span>%</span>`;
+  document.getElementById('fatRemain').textContent=Math.max(0,curFat-GOAL_FAT).toFixed(1);
+  document.getElementById('wtVal').innerHTML=`${curWt}<span>kg</span>`;
+  document.getElementById('fatPctLabel').textContent=`${fatPct}% 達成`;
+  document.getElementById('fatBar').style.width=fatPct+'%';
+  document.getElementById('daysLabel').textContent=`${logs.length} / ${TOTAL_DAYS}日`;
+  document.getElementById('daysBar').style.width=daysPct+'%';
+  document.getElementById('startFatLabel').textContent=`体脂肪 ${START_FAT}%`;
+  document.getElementById('goalFatLabel').textContent=GOAL_FAT;
+  const fire=streak>=7?'🔥🔥🔥':streak>=3?'🔥🔥':streak>=1?'🔥':'💤';
+  const msg=streak===0?'最初の記録をつけよう！':streak<3?'いいスタート！':streak<7?'この調子！':streak<14?'1週間突破！':'圧倒的継続力！';
+  document.getElementById('streakFire').textContent=fire;
+  document.getElementById('streakNum').innerHTML=`${streak}<span> 日連続記録</span>`;
+  document.getElementById('streakMsg').textContent=msg;
+  const ringCirc=138.2,offset=ringCirc*(1-Math.min(streak/30,1));
+  document.getElementById('streakRingFill').style.strokeDashoffset=offset;
+  document.getElementById('streakRingNum').textContent=streak;
+  document.getElementById('streakRingFill').setAttribute('stroke',streak===0?'#2a4a58':'var(--fire)');
+  renderMilestone(curFat);
+  renderPace(curFat);
+  drawChart();
+  const today=todayStr();
+  const cur=logs.find(l=>l.date===today);
+  const hasData=cur&&(cur.weight||cur.fat||cur.training||cur.br);
+  document.getElementById('todayCard').style.display=hasData?'block':'none';
+  document.getElementById('todayEmpty').style.display=hasData?'none':'block';
+  if(hasData) renderToday(cur);
+  renderHistory();
+}
+
+function renderToday(log){
+  const nums=[];
+  if(log.weight) nums.push(`<div class="data-num"><div class="data-num-label">体重</div><div class="data-num-val" style="color:var(--accent)">${log.weight}<span class="data-num-unit">kg</span></div></div>`);
+  if(log.fat)    nums.push(`<div class="data-num"><div class="data-num-label">体脂肪率</div><div class="data-num-val" style="color:var(--mint)">${log.fat}<span class="data-num-unit">%</span></div></div>`);
+  if(log.sleep)  nums.push(`<div class="data-num"><div class="data-num-label">睡眠</div><div class="data-num-val" style="color:#60c8e8">${log.sleep}<span class="data-num-unit">h</span></div></div>`);
+  if(log.kcal)   nums.push(`<div class="data-num"><div class="data-num-label">カロリー</div><div class="data-num-val" style="color:var(--warn)">${log.kcal.toLocaleString()}<span class="data-num-unit">kcal</span></div></div>`);
+  document.getElementById('todayNums').innerHTML=nums.join('');
+  const chips=[];
+  if(log.training) chips.push(`<span class="chip">💪 ${log.training}</span>`);
+  document.getElementById('todayChips').innerHTML=chips.join('');
+  const meals=[];
+  if(log.br) meals.push(`<div class="meal-row"><b>🌅 朝</b>　${log.br}</div>`);
+  if(log.lu) meals.push(`<div class="meal-row"><b>☀️ 昼</b>　${log.lu}</div>`);
+  if(log.di) meals.push(`<div class="meal-row"><b>🌙 夜</b>　${log.di}</div>`);
+  if(log.sn) meals.push(`<div class="meal-row"><b>🍪 間食</b>　${log.sn}</div>`);
+  if(log.kcal) meals.push(`<div class="meal-total">合計：${log.kcal.toLocaleString()} kcal</div>`);
+  const ms=document.getElementById('todayMeals');
+  if(meals.length){ms.style.display='block';ms.innerHTML=meals.join('');}
+  else ms.style.display='none';
+}
+
+function renderHistory(){
+  const list=document.getElementById('histList');
+  const empty=document.getElementById('histEmpty');
+  document.getElementById('histCount').textContent=logs.length+'件';
+  if(!logs.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=[...logs].reverse().map(l=>{
+    const nums=[];
+    if(l.weight) nums.push(`<span class="hist-num">${l.weight}<span>kg</span></span>`);
+    if(l.fat)    nums.push(`<span class="hist-num">${l.fat}<span>%</span></span>`);
+    const chips=[];
+    if(l.training) chips.push(`<span class="chip">💪 ${l.training}</span>`);
+    if(l.kcal)     chips.push(`<span class="chip">🔥 ${l.kcal.toLocaleString()}kcal</span>`);
+    if(l.sleep)    chips.push(`<span class="chip">😴 ${l.sleep}h</span>`);
+    const meals=[];
+    if(l.br) meals.push(`<div class="hist-meal-row">🌅 ${l.br}</div>`);
+    if(l.lu) meals.push(`<div class="hist-meal-row">☀️ ${l.lu}</div>`);
+    if(l.di) meals.push(`<div class="hist-meal-row">🌙 ${l.di}</div>`);
+    if(l.sn) meals.push(`<div class="hist-meal-row">🍪 ${l.sn}</div>`);
+    return `<div class="hist-item">
+      <div class="hist-head"><span class="hist-date">${l.date}</span><div class="hist-nums">${nums.join('')}</div></div>
+      ${chips.length?`<div class="hist-chips">${chips.join('')}</div>`:''}
+      ${meals.length?`<div class="hist-meals">${meals.join('')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('pasteInput').addEventListener('input',function(){
+  const text=this.value;
+  if(!text.trim()) return;
+  const r=parseLog(text);
+  const has=r.weight||r.fat||r.training||r.br||r.br_kcal||r.lu||r.lu_kcal||r.di||r.di_kcal||r.sn||r.sn_kcal;
+  if(!has) return;
+  const date=r.date||todayStr();
+  const existing=logs.find(l=>l.date===date)||{date};
+  const merged={...existing,...r};
+  const totalKcal=(merged.br_kcal||0)+(merged.lu_kcal||0)+(merged.di_kcal||0)+(merged.sn_kcal||0);
+  if(totalKcal>0) merged.kcal=totalKcal;
+  const idx=logs.findIndex(l=>l.date===date);
+  if(idx>=0) logs[idx]=merged; else logs.push(merged);
+  logs.sort((a,b)=>a.date.localeCompare(b.date));
+  const ok=saveData(logs);
+  const st=document.getElementById('pasteStatus');
+  st.className='paste-status paste-ok';
+  st.textContent=ok?'✅ 保存しました！':'⚠️ 保存に失敗しました';
+  render();
+  const self=this;
+  setTimeout(()=>{self.value='';st.textContent='';},2500);
+});
+
+document.getElementById('btnFeedback').addEventListener('click',function(){
+  const text=buildReport();
+  const btn=this;
+  const done=()=>{
+    btn.textContent='✅ コピーしました！フィードバックチャットに貼り付けてください';
+    btn.classList.add('btn-ok');
+    setTimeout(()=>{btn.textContent='✨ フィードバックデータをコピー';btn.classList.remove('btn-ok');},3500);
+  };
+  try{navigator.clipboard.writeText(text).then(done);}
+  catch{
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    done();
+  }
+});
+
+function switchTab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+render();
+fillSettingsInputs();
+</script>
+</body>
+</html>
