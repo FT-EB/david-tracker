@@ -10,17 +10,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #07111c; --card: #0d1e2d; --card2: #112436;
-  --border: rgba(61,214,224,.12); --hi: rgba(61,214,224,.35);
-  --accent: #3dd6e0; --mint: #63d2b8; --gold: #f0c040;
-  --fire: #ff6b35; --text: #e4f4f6; --dim: #7ab3bc; --muted: #2a4a58;
-  --ok: #4ade80; --warn: #fbbf24; --safe: env(safe-area-inset-bottom, 0px);
+  --bg:#07111c; --card:#0d1e2d; --card2:#112436;
+  --border:rgba(61,214,224,.12); --accent:#3dd6e0; --mint:#63d2b8; --gold:#f0c040;
+  --fire:#ff6b35; --text:#e4f4f6; --dim:#7ab3bc; --muted:#2a4a58;
+  --ok:#4ade80; --warn:#fbbf24; --safe:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;overflow-x:hidden}
 .nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,30,45,.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe);z-index:100}
 .nav-btn{flex:1;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;transition:.2s}
-.nav-icon{font-size:20px;line-height:1;transition:.2s}
+.nav-icon{font-size:20px;line-height:1}
 .nav-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'Noto Sans JP',sans-serif}
 .nav-btn.active .nav-label{color:var(--accent)}
 .nav-btn.active .nav-icon{transform:scale(1.15)}
@@ -63,13 +62,6 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'N
 .streak-num span{font-size:14px;color:var(--dim);font-family:'Noto Sans JP',sans-serif;font-weight:300;letter-spacing:0}
 .streak-msg{font-size:11px;color:var(--muted);margin-top:3px}
 .streak-ring{flex-shrink:0}
-.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-.badge-item{border-radius:10px;padding:10px 6px;text-align:center;transition:.3s;border:1px solid transparent}
-.badge-item.earned{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)}
-.badge-item.locked{background:rgba(255,255,255,.02);opacity:.3}
-.badge-icon{font-size:22px;margin-bottom:4px;display:block}
-.badge-label{font-size:9px;line-height:1.4;font-weight:500}
-.badge-done{font-size:8px;color:var(--ok);margin-top:3px}
 .sec-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;margin-top:16px}
 .sec-label:first-child{margin-top:0}
 .paste-zone{background:linear-gradient(135deg,rgba(61,214,224,.06),rgba(99,210,184,.03));border:1.5px dashed rgba(61,214,224,.3);border-radius:14px;padding:16px;margin-bottom:12px;transition:.2s}
@@ -97,7 +89,7 @@ textarea.paste-input::placeholder{color:var(--muted)}
 .meal-total{font-size:12px;color:var(--warn);font-weight:700;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.05)}
 .btn-gold{width:100%;padding:14px;border-radius:11px;border:none;background:linear-gradient(135deg,#b8840a,#f0c040);color:#07111c;font-weight:700;font-size:14px;cursor:pointer;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;box-shadow:0 5px 20px rgba(240,192,64,.25);transition:.2s;display:block;margin-top:12px}
 .btn-gold:active{transform:scale(.98);opacity:.9}
-.btn-ok{background:rgba(74,222,128,.15) !important;color:var(--ok) !important;box-shadow:none !important}
+.btn-ok{background:rgba(74,222,128,.15)!important;color:var(--ok)!important;box-shadow:none!important}
 .chart-wrap{width:100%;height:130px;position:relative;margin-top:4px}
 .chart-svg{width:100%;height:100%}
 .hist-item{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-bottom:8px}
@@ -110,6 +102,13 @@ textarea.paste-input::placeholder{color:var(--muted)}
 .hist-meals{border-top:1px solid rgba(99,210,219,.08);padding-top:7px}
 .hist-meal-row{font-size:11px;color:var(--dim);margin-bottom:2px}
 .empty{text-align:center;padding:32px 14px;border:1px dashed var(--muted);border-radius:14px;color:var(--muted);font-size:13px;line-height:1.9}
+/* モチベーションカード */
+.motive-bar-track{background:rgba(255,255,255,.05);border-radius:99px;height:10px;overflow:hidden;margin:8px 0 4px}
+.motive-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--mint),var(--accent));transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.motive-nums{display:flex;gap:14px;margin-bottom:4px}
+.motive-num{text-align:center}
+.motive-num-label{font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:2px}
+.motive-num-val{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;letter-spacing:1px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .panel.active{animation:fadeUp .25s ease}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
@@ -164,12 +163,20 @@ textarea.paste-input::placeholder{color:var(--muted)}
     </div>
   </div>
 
-  <div class="card">
-    <div class="sec-label">実績バッジ</div>
-    <div class="badge-grid" id="badgeGrid"></div>
+  <!-- 次のマイルストーンカード -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="sec-label">🎯 NEXT TARGET</div>
+    <div id="milestoneContent"><div style="font-size:12px;color:var(--muted)">記録を追加するとここに表示されます</div></div>
   </div>
 
-  <div class="card" style="margin-top:12px">
+  <!-- ペース分析カード -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="sec-label">📊 PACE ANALYSIS</div>
+    <div id="paceContent"><div style="font-size:12px;color:var(--muted)">3日以上記録するとペースが表示されます</div></div>
+  </div>
+
+  <!-- グラフカード -->
+  <div class="card" style="margin-top:0">
     <div class="sec-label">体脂肪率の推移</div>
     <div class="chart-wrap"><svg class="chart-svg" id="chartSvg" viewBox="0 0 360 110" preserveAspectRatio="none"></svg></div>
   </div>
@@ -220,27 +227,191 @@ textarea.paste-input::placeholder{color:var(--muted)}
 </nav>
 
 <script>
-const GOAL_FAT=11.5,START_FAT=20,START_WT=66,TOTAL_DAYS=270;
+const GOAL_FAT=11.5, START_FAT=20, START_WT=66, TOTAL_DAYS=270;
 const STORE_KEY='david_app';
 const MENU=['完全休養・チートデイ','胸・肩・三頭筋','ランニング','背中・二頭筋・体幹','休養','脚・臀部・腰回り','ランニング'];
-const MILESTONES=[
-  {days:7,  fat:null,label:'1週間継続',    icon:'🔥',color:'#ff6b35'},
-  {days:14, fat:null,label:'2週間継続',    icon:'⚡',color:'#fbbf24'},
-  {days:30, fat:null,label:'1ヶ月継続',    icon:'🏆',color:'#f0c040'},
-  {days:null,fat:19, label:'体脂肪19%突破',icon:'💪',color:'#63d2b8'},
-  {days:null,fat:18, label:'体脂肪18%突破',icon:'🎯',color:'#3dd6e0'},
-  {days:null,fat:17, label:'体脂肪17%突破',icon:'⭐',color:'#60c8e8'},
-  {days:null,fat:16, label:'体脂肪16%突破',icon:'🌟',color:'#a78bfa'},
-  {days:null,fat:15, label:'体脂肪15%突破',icon:'👑',color:'#fbbf24'},
-  {days:null,fat:GOAL_FAT,label:'ダビデ達成！',icon:'🗿',color:'#f0c040'},
-];
+const FAT_MILESTONES=[19,18,17,16,15,GOAL_FAT];
 
 function loadData(){try{const v=localStorage.getItem(STORE_KEY);return v?JSON.parse(v):[]}catch{return[]}}
 function saveData(logs){try{localStorage.setItem(STORE_KEY,JSON.stringify(logs));return true}catch{return false}}
 let logs=loadData();
 
-// ✅ 修正1: UTC→JST ローカル日付を使用
+// ✅ JST対応
 const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+
+// ============================================================
+// ダビデSVG：体脂肪率で体型が変化
+// ============================================================
+function davidSVG(pct){
+  const t=Math.min(1,Math.max(0,pct/100));
+  const L=(a,b)=>a+(b-a)*t;
+  const f=n=>n.toFixed(1);
+
+  // ボディ幅（センター60からの半幅）
+  // fat(t=0): ウエスト太・腹ぽっこり / lean(t=1): V字シルエット
+  const SH=L(23,31);  // 肩幅
+  const LA=L(28,34);  // 広背筋
+  const BE=L(34,15);  // 腹部（最大の変化ポイント）
+  const WA=L(30,13);  // ウエスト
+  const HI=L(25,21);  // 腰
+  const TH=L(11,10);  // 太もも
+
+  // Y座標（固定）
+  const yS=38,yL=53,yB=72,yW=85,yH=101,yK=140,yF=193;
+
+  // ボディパス（左→下→右→上→閉）
+  const path=[
+    `M ${f(60-SH)} ${yS}`,
+    `Q ${f(60-LA)} ${yL} ${f(60-BE)} ${yB}`,
+    `Q ${f(60-WA)} ${yW} ${f(60-HI)} ${yH}`,
+    `L ${f(60-TH)} ${yK} L ${f(60-TH+1)} ${yF}`,
+    `L ${f(60+TH-1)} ${yF} L ${f(60+TH)} ${yK}`,
+    `L ${f(60+HI)} ${yH}`,
+    `Q ${f(60+WA)} ${yW} ${f(60+BE)} ${yB}`,
+    `Q ${f(60+LA)} ${yL} ${f(60+SH)} ${yS}`,
+    `Q ${f(60+L(2,-1))} 35 65 34 L 55 34`,
+    `Q ${f(60-L(2,-1))} 35 ${f(60-SH)} ${yS} Z`
+  ].join(' ');
+
+  // グロー
+  const glowPx=(6+t*18).toFixed(0);
+  const glowA=(0.18+t*0.57).toFixed(2);
+  const strokeA=(0.22+t*0.45).toFixed(2);
+
+  // お腹のたるみライン（高体脂肪時に表示）
+  const bellyA=Math.max(0,(0.55-t)*2.2).toFixed(2);
+  const broll1=`M ${f(60-BE+4)} 61 Q 60 66 ${f(60+BE-4)} 61`;
+  const broll2=`M ${f(60-BE+8)} 50 Q 60 54 ${f(60+BE-8)} 50`;
+
+  // 腹筋ライン（低体脂肪時に表示）
+  const absA=Math.max(0,(t-0.45)*2.2).toFixed(2);
+  const absW=L(0,8);
+  const absH=[62,70,78].map(y=>`M ${f(60-absW)} ${y} L ${f(60+absW)} ${y}`).join(' ');
+  const absV=`M 60 58 L 60 87`;
+
+  // 胸筋ライン（低体脂肪時に表示）
+  const pecA=Math.max(0,(t-0.35)*1.8).toFixed(2);
+  const pecW=L(0,11);
+  const lPec=`M ${f(60-pecW+2)} 46 Q ${f(60-pecW-3)} 54 ${f(60-pecW+4)} 61`;
+  const rPec=`M ${f(60+pecW-2)} 46 Q ${f(60+pecW+3)} 54 ${f(60+pecW-4)} 61`;
+
+  // 頭（体脂肪高いと少し丸め）
+  const hRx=f(L(14,13));
+
+  // ステージラベル
+  const labels=['チビデ😅','まだまだ💪','いい感じ🔥','もうすぐ⚡','ダビデ🗿'];
+  const label=labels[Math.min(4,Math.floor(t*5))];
+
+  return `<svg viewBox="0 0 120 207" width="82" height="142" style="filter:drop-shadow(0 0 ${glowPx}px rgba(61,214,224,${glowA}))">
+  <defs>
+    <linearGradient id="dg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3dd6e0" stop-opacity="${f(0.28+t*0.62)}"/>
+      <stop offset="100%" stop-color="#63d2b8" stop-opacity="${f(0.08+t*0.55)}"/>
+    </linearGradient>
+  </defs>
+  <path d="${path}" fill="url(#dg)" stroke="rgba(61,214,224,${strokeA})" stroke-width="1"/>
+  <ellipse cx="60" cy="18" rx="${hRx}" ry="16" fill="url(#dg)" stroke="rgba(61,214,224,${strokeA})" stroke-width="0.8"/>
+  <rect x="${f(60-L(7,5.5))}" y="33" width="${f(L(14,11))}" height="6" rx="2" fill="url(#dg)"/>
+  <path d="${broll1}" fill="none" stroke="rgba(99,210,184,${bellyA})" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="${broll2}" fill="none" stroke="rgba(99,210,184,${bellyA})" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="${absH}" fill="none" stroke="rgba(61,214,224,${absA})" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="${absV}" fill="none" stroke="rgba(61,214,224,${f(Math.max(0,parseFloat(absA)*0.5))})" stroke-width="0.7"/>
+  <path d="${lPec}" fill="none" stroke="rgba(61,214,224,${pecA})" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="${rPec}" fill="none" stroke="rgba(61,214,224,${pecA})" stroke-width="1.1" stroke-linecap="round"/>
+  <text x="60" y="204" text-anchor="middle" fill="rgba(61,214,224,0.45)" font-size="7" font-family="sans-serif">${label}</text>
+</svg>`;
+}
+
+// ============================================================
+// 次のマイルストーンカード
+// ============================================================
+function renderMilestone(curFat){
+  const el=document.getElementById('milestoneContent');
+  const next=FAT_MILESTONES.find(m=>curFat>m);
+  if(!next){
+    el.innerHTML=`<div style="text-align:center;padding:10px 0">
+      <div style="font-size:32px;margin-bottom:6px">🗿</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px">ダビデ達成！</div>
+    </div>`;
+    return;
+  }
+  const prevIdx=FAT_MILESTONES.indexOf(next)-1;
+  const prev=prevIdx>=0?FAT_MILESTONES[prevIdx]:START_FAT;
+  const progress=Math.min(100,Math.max(0,Math.round((prev-curFat)/(prev-next)*100)));
+  const remaining=(curFat-next).toFixed(1);
+  el.innerHTML=`
+    <div style="margin-bottom:10px;display:flex;align-items:baseline;gap:8px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--accent);letter-spacing:1px;line-height:1">${next}<span style="font-size:18px">%</span></div>
+      <div style="font-size:12px;color:var(--dim)">突破まで<br><b style="color:var(--gold);font-size:16px">あと${remaining}%</b></div>
+    </div>
+    <div class="motive-bar-track">
+      <div class="motive-bar-fill" style="width:${progress}%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:2px">
+      <span>${prev}%</span>
+      <span style="color:var(--accent);font-weight:700">${progress}% 達成</span>
+      <span>${next}%</span>
+    </div>`;
+}
+
+// ============================================================
+// ペース分析カード
+// ============================================================
+function renderPace(curFat){
+  const el=document.getElementById('paceContent');
+  const fatLogs=logs.filter(l=>l.fat).sort((a,b)=>a.date.localeCompare(b.date));
+  if(fatLogs.length<3){
+    const need=3-fatLogs.length;
+    el.innerHTML=`<div style="font-size:12px;color:var(--muted);line-height:2">
+      あと<b style="color:var(--accent)"> ${need}日分 </b>の体脂肪記録でペース分析が始まります 📊
+    </div>`;
+    return;
+  }
+  const recent=fatLogs.slice(-Math.min(10,fatLogs.length));
+  const first=recent[0], last=recent[recent.length-1];
+  const daysDiff=(new Date(last.date)-new Date(first.date))/86400000;
+  if(daysDiff<1){el.innerHTML='<div style="font-size:12px;color:var(--muted)">もう少しデータが必要です</div>';return;}
+  const ratePerWeek=((last.fat-first.fat)/daysDiff)*7;
+  const ratePerMonth=ratePerWeek*4.33;
+  const rateColor=ratePerWeek<-0.05?'var(--ok)':ratePerWeek>0.05?'#f87171':'var(--warn)';
+  const sign=ratePerWeek>0?'+':'';
+
+  let goalHTML='';
+  if(ratePerWeek<-0.05){
+    const weeks=(curFat-GOAL_FAT)/Math.abs(ratePerWeek);
+    const gd=new Date();
+    gd.setDate(gd.getDate()+Math.round(weeks*7));
+    const gs=gd.getFullYear()+'年'+(gd.getMonth()+1)+'月';
+    goalHTML=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px">
+      このペースなら <b style="color:var(--ok)">${gs}にダビデ達成！</b> 🗿
+    </div>`;
+  }else if(ratePerWeek>0.05){
+    goalHTML=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:#f87171">
+      体脂肪が増加傾向です。食事と運動を見直そう！
+    </div>`;
+  }else{
+    goalHTML=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--warn)">
+      ほぼ横ばいです。もう一歩頑張ろう！
+    </div>`;
+  }
+
+  el.innerHTML=`
+    <div class="motive-nums">
+      <div class="motive-num">
+        <div class="motive-num-label">週ペース</div>
+        <div class="motive-num-val" style="color:${rateColor}">${sign}${ratePerWeek.toFixed(2)}<span style="font-size:11px;color:var(--dim)">%</span></div>
+      </div>
+      <div class="motive-num">
+        <div class="motive-num-label">月ペース</div>
+        <div class="motive-num-val" style="color:${rateColor}">${sign}${ratePerMonth.toFixed(1)}<span style="font-size:11px;color:var(--dim)">%</span></div>
+      </div>
+      <div class="motive-num">
+        <div class="motive-num-label">記録日数</div>
+        <div class="motive-num-val" style="color:var(--accent)">${fatLogs.length}<span style="font-size:11px;color:var(--dim)">日</span></div>
+      </div>
+    </div>
+    ${goalHTML}`;
+}
 
 function parseLog(text){
   const r={};
@@ -253,7 +424,7 @@ function parseLog(text){
     const nm=text.match(/💬[^\n]*\n([^\n]+)/); if(nm&&nm[1].trim()!=='なし') r.note=nm[1].trim();
   }
   if(text.includes('食事記録')){
-    // ✅ 修正2: 昼食emoji ☀️に統一
+    // ✅ ☀️に統一
     const emojis=[['🌅','br'],['☀️','lu'],['🌙','di'],['🍪','sn']];
     const stops=['🌅','☀️','🌙','🍪','合計'];
     emojis.forEach(([e,k])=>{
@@ -284,40 +455,12 @@ function parseLog(text){
 function calcStreak(){
   const dates=[...new Set(logs.map(l=>l.date))].sort().reverse();
   let n=0;const now=new Date();now.setHours(0,0,0,0);
-  for(let i=0;i<dates.length;i++){const d=new Date(dates[i]);d.setHours(0,0,0,0);const diff=Math.round((now-d)/86400000);if(diff===i||diff===i+1)n++;else break;}
+  for(let i=0;i<dates.length;i++){
+    const d=new Date(dates[i]);d.setHours(0,0,0,0);
+    const diff=Math.round((now-d)/86400000);
+    if(diff===i||diff===i+1)n++;else break;
+  }
   return n;
-}
-
-function davidSVG(pct){
-  const g=Math.min(1,pct/100);
-  const s=`drop-shadow(0 0 ${8+g*16}px rgba(61,214,224,${0.25+g*0.55}))`;
-  return `<svg viewBox="0 0 120 200" width="80" height="133" style="filter:${s}">
-    <defs>
-      <linearGradient id="dg" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#3dd6e0" stop-opacity="${0.25+g*0.75}"/>
-        <stop offset="100%" stop-color="#63d2b8" stop-opacity="${0.1+g*0.65}"/>
-      </linearGradient>
-      <clipPath id="cp"><rect x="0" y="${200-200*pct/100}" width="120" height="200"/></clipPath>
-    </defs>
-    <g opacity="0.12" fill="#7ab3bc">
-      <ellipse cx="60" cy="18" rx="14" ry="16"/>
-      <rect x="50" y="32" width="20" height="4" rx="2"/>
-      <path d="M38 36 Q30 60 28 90 L40 90 Q42 68 48 56 L48 100 L42 140 L52 140 L56 110 L64 110 L68 140 L78 140 L72 100 L72 56 Q78 68 80 90 L92 90 Q90 60 82 36 Z"/>
-      <path d="M28 90 Q18 100 16 120 L28 122 Q30 108 36 98 Z"/>
-      <path d="M92 90 Q102 100 104 120 L92 122 Q90 108 84 98 Z"/>
-      <rect x="42" y="140" width="10" height="55" rx="5"/>
-      <rect x="68" y="140" width="10" height="55" rx="5"/>
-    </g>
-    <g clip-path="url(#cp)" fill="url(#dg)">
-      <ellipse cx="60" cy="18" rx="14" ry="16"/>
-      <rect x="50" y="32" width="20" height="4" rx="2"/>
-      <path d="M38 36 Q30 60 28 90 L40 90 Q42 68 48 56 L48 100 L42 140 L52 140 L56 110 L64 110 L68 140 L78 140 L72 100 L72 56 Q78 68 80 90 L92 90 Q90 60 82 36 Z"/>
-      <path d="M28 90 Q18 100 16 120 L28 122 Q30 108 36 98 Z"/>
-      <path d="M92 90 Q102 100 104 120 L92 122 Q90 108 84 98 Z"/>
-      <rect x="42" y="140" width="10" height="55" rx="5"/>
-      <rect x="68" y="140" width="10" height="55" rx="5"/>
-    </g>
-  </svg>`;
 }
 
 function drawChart(){
@@ -349,16 +492,16 @@ function buildReport(){
   const hist=logs.slice(-6).filter(l=>l.date!==cur.date).map(l=>`${l.date}:${l.weight||'-'}kg/${l.fat||'-'}%`).join(' / ');
   return [
     `【${cur.date}】今日のデータ`,
-    cur.weight   &&`⚖️ 体重：${cur.weight}kg`,
-    cur.fat      &&`📊 体脂肪率：${cur.fat}%`,
-    cur.sleep    &&`😴 睡眠：${cur.sleep}時間`,
-    cur.br       &&`🌅 朝：${cur.br}`,
-    cur.lu       &&`☀️ 昼：${cur.lu}`,
-    cur.di       &&`🌙 夜：${cur.di}`,
-    cur.sn       &&`🍪 間食：${cur.sn}`,
-    cur.kcal     &&`🔥 合計：${cur.kcal.toLocaleString()}kcal`,
-    cur.training &&`💪 ${cur.training}`,
-    cur.note     &&`💬 ${cur.note}`,
+    cur.weight&&`⚖️ 体重：${cur.weight}kg`,
+    cur.fat&&`📊 体脂肪率：${cur.fat}%`,
+    cur.sleep&&`😴 睡眠：${cur.sleep}時間`,
+    cur.br&&`🌅 朝：${cur.br}`,
+    cur.lu&&`☀️ 昼：${cur.lu}`,
+    cur.di&&`🌙 夜：${cur.di}`,
+    cur.sn&&`🍪 間食：${cur.sn}`,
+    cur.kcal&&`🔥 合計：${cur.kcal.toLocaleString()}kcal`,
+    cur.training&&`💪 ${cur.training}`,
+    cur.note&&`💬 ${cur.note}`,
     `\n📅 過去データ：${hist||'初回'}`,
   ].filter(Boolean).join('\n');
 }
@@ -370,7 +513,6 @@ function render(){
   const curWt=latest?.weight??START_WT;
   const fatPct=Math.min(100,Math.round(((START_FAT-curFat)/(START_FAT-GOAL_FAT))*100));
   const daysPct=Math.min(100,Math.round((logs.length/TOTAL_DAYS)*100));
-  const minFat=Math.min(...logs.map(l=>l.fat).filter(Boolean),99);
   document.getElementById('menuText').textContent=MENU[new Date().getDay()];
   document.getElementById('davidSvg').innerHTML=davidSVG(fatPct);
   document.getElementById('fatVal').innerHTML=`${curFat}<span>%</span>`;
@@ -389,17 +531,14 @@ function render(){
   document.getElementById('streakRingFill').style.strokeDashoffset=offset;
   document.getElementById('streakRingNum').textContent=streak;
   document.getElementById('streakRingFill').setAttribute('stroke',streak===0?'#2a4a58':'var(--fire)');
-  document.getElementById('badgeGrid').innerHTML=MILESTONES.map(m=>{
-    const earned=(m.days&&streak>=m.days)||(m.fat&&minFat<=m.fat);
-    return `<div class="badge-item ${earned?'earned':'locked'}" style="${earned?`border-color:${m.color}40`:''}">
-      <span class="badge-icon">${m.icon}</span>
-      <div class="badge-label" style="color:${earned?m.color:'#2a4a58'}">${m.label}</div>
-      ${earned?'<div class="badge-done">✓ 達成</div>':''}
-    </div>`;
-  }).join('');
+
+  // モチベーションカード更新
+  renderMilestone(curFat);
+  renderPace(curFat);
+
   drawChart();
 
-  // ✅ 修正3: todayStr()がローカル日付を返すので今日の記録を正しく検出
+  // ✅ todayStr()でJST正確に今日を判定
   const today=todayStr();
   const cur=logs.find(l=>l.date===today);
   const hasData=cur&&(cur.weight||cur.fat||cur.training||cur.br);
@@ -421,7 +560,6 @@ function renderToday(log){
   document.getElementById('todayChips').innerHTML=chips.join('');
   const meals=[];
   if(log.br) meals.push(`<div class="meal-row"><b>🌅 朝</b>　${log.br}</div>`);
-  // ✅ 修正4: 昼食表示emoji ☀️に統一
   if(log.lu) meals.push(`<div class="meal-row"><b>☀️ 昼</b>　${log.lu}</div>`);
   if(log.di) meals.push(`<div class="meal-row"><b>🌙 夜</b>　${log.di}</div>`);
   if(log.sn) meals.push(`<div class="meal-row"><b>🍪 間食</b>　${log.sn}</div>`);
@@ -447,7 +585,6 @@ function renderHistory(){
     if(l.sleep)    chips.push(`<span class="chip">😴 ${l.sleep}h</span>`);
     const meals=[];
     if(l.br) meals.push(`<div class="hist-meal-row">🌅 ${l.br}</div>`);
-    // ✅ 修正5: 履歴の昼食emoji ☀️に統一
     if(l.lu) meals.push(`<div class="hist-meal-row">☀️ ${l.lu}</div>`);
     if(l.di) meals.push(`<div class="hist-meal-row">🌙 ${l.di}</div>`);
     if(l.sn) meals.push(`<div class="hist-meal-row">🍪 ${l.sn}</div>`);
