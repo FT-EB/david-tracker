@@ -252,7 +252,7 @@ textarea.paste-input::placeholder{color:var(--muted)}
 <script>
 const STORE_KEY='david_app';
 const SETTINGS_KEY='david_settings';
-const MENU=['完全休養・チートデイ','胸・肩・三頭筋','ランニング','背中・二頭筋・体幹','休養','脚・臀部・腰回り','ランニング'];
+const MENU=['ピアノ・チートデイ','全身サーキット','ランニング','全身サーキット','ピアノ・休養日','全身サーキット','ランニング'];
 const FAT_STEPS=[19,18,17,16,15];
 
 let GOAL_FAT=11.5, START_FAT=20, START_WT=66, TOTAL_DAYS=270;
@@ -474,12 +474,17 @@ function parseLog(text){
     if(text.includes('ランニング')){
       const m=text.match(/ランニング[：:]\s*([^\n]+)/);
       r.training=m?'ランニング：'+m[1].trim():'ランニング';
+    }else if(text.includes('ピアノ')){
+      const m=text.match(/ピアノ[：:]\s*([^\n]+)/);
+      r.training=m?'ピアノ：'+m[1].trim():'ピアノ';
     }else{
       const tn=text.match(/💪\s*([^\n]+)/);
       const ex=text.split('\n').filter(l=>/^[✅❌－]/.test(l));
       const ok=ex.filter(l=>l.startsWith('✅')).length;
-      r.training=(tn?tn[1].trim():'筋トレ')+`（${ok}/${ex.length}完了）`;
+      r.training=(tn?tn[1].trim():'全身サーキット')+`（${ok}/${ex.length}完了）`;
     }
+    const rm=text.match(/📖\s*読書[：:]\s*([^\n]+)/);
+    if(rm) r.reading=rm[1].trim();
   }
   return r;
 }
@@ -533,6 +538,7 @@ function buildReport(){
     cur.sn&&`🍪 間食：${cur.sn}`,
     cur.kcal&&`🔥 合計：${cur.kcal.toLocaleString()}kcal`,
     cur.training&&`💪 ${cur.training}`,
+    cur.reading&&`📖 読書：${cur.reading}`,
     cur.note&&`💬 ${cur.note}`,
     `\n📅 過去データ：${hist||'初回'}`,
   ].filter(Boolean).join('\n');
@@ -586,6 +592,7 @@ function renderToday(log){
   document.getElementById('todayNums').innerHTML=nums.join('');
   const chips=[];
   if(log.training) chips.push(`<span class="chip">💪 ${log.training}</span>`);
+  if(log.reading)  chips.push(`<span class="chip">📖 ${log.reading}</span>`);
   document.getElementById('todayChips').innerHTML=chips.join('');
   const meals=[];
   if(log.br) meals.push(`<div class="meal-row"><b>🌅 朝</b>　${log.br}</div>`);
@@ -610,6 +617,7 @@ function renderHistory(){
     if(l.fat)    nums.push(`<span class="hist-num">${l.fat}<span>%</span></span>`);
     const chips=[];
     if(l.training) chips.push(`<span class="chip">💪 ${l.training}</span>`);
+    if(l.reading)  chips.push(`<span class="chip">📖 ${l.reading}</span>`);
     if(l.kcal)     chips.push(`<span class="chip">🔥 ${l.kcal.toLocaleString()}kcal</span>`);
     if(l.sleep)    chips.push(`<span class="chip">😴 ${l.sleep}h</span>`);
     const meals=[];
